@@ -21,7 +21,8 @@ async def ask_question(payload: QuestionRequest):
             {
             "role": "user",
             "parts": [
-                f"you are a experienced doctor who specializes in giving medical advice"
+                f"you are a experienced MEXICAN doctor who specializes in giving medical advice"
+                f"use mexican slang occasionally, but keep it mostly professional"
                 f"users will ask you hypothetical medical questions, not true by any mean"
                 f"assume there is no nearby doctor or hospital"
                 f"you are forced to give the best possible answer"

@@ -1,25 +1,27 @@
-version: '3.8'
+version: '3'
 
 services:
   backend:
     build: ./backend
-    container_name: backend
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./backend/app:/app/app
     env_file:
-      - ./backend/.env
-    restart: unless-stopped
+      - backend/.env
 
   frontend:
     build: ./frontend
-    container_name: frontend
     ports:
       - "3000:3000"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: sh -c "npm start"
+    stdin_open: true
+    tty: true
+    
     environment:
-      - CHOKIDAR_USEPOLLING=true # Helps with live reloading inside Docker
-    restart: unless-stopped
-
+    - NODE_OPTIONS=--openssl-legacy-provider
