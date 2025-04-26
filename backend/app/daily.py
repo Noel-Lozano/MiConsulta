@@ -1,18 +1,10 @@
-from fastapi import APRouter, Depends
+from fastapi import APIRouter, Depends
 from datetime import date, timedelta
 
 router = APIRouter()
 
-# Mock database
-questions = {
-    "2025-04-26": {
-        "question": "What is the normal resting heart rate for adults?",
-        "options": ["60-100 bpm", "40-60 bpm", "100-140 bpm", "120-160 bpm"],
-        "answer": "60-100 bpm"
-    },
-    # more daily questions...
-}
-
+#questions ={date: [question, answer, options]} 
+questions = {}
 user_streaks = {}  # Ideally later: Supabase/Postgres
 
 @router.get("/daily-question")
