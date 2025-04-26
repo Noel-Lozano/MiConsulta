@@ -1,4 +1,4 @@
-from fastapi import APRouter, Depends
+from fastapi import APIRouter, Depends
 from datetime import date, timedelta
 
 router = APIRouter()
