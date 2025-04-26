@@ -1,10 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.ask import router as ask_router
-from app.api import daily
 
-# Create the FastAPI app
-# This is the main entry point for the FastAPI application
 app = FastAPI()
 
 # Allow React frontend to connect
@@ -19,8 +15,3 @@ app.add_middleware(
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}
-
-
-
-app.include_router(ask_router)
-app.include_router(daily.router, prefix="/daily")
