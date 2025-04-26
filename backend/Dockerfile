@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 8000
 
 # Run your app (you might need to change this depending if you use Flask, FastAPI, etc.)
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
