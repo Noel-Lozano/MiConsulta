@@ -57,7 +57,3 @@ function App() {
 }
 
 export default App;
-// App.js
-// This is the main component of the React application.
-// It contains a form for users to input their health-related questions
-// and displays the answer received from the backend.
