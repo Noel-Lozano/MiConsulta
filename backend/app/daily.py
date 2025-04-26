@@ -4,7 +4,35 @@ from datetime import date, timedelta
 router = APIRouter()
 
 #questions ={date: [question, answer, options]} 
-questions = {}
+# sample questions for the month of April 2025
+questions = {
+    "2025-04-26": {
+        "question": "What is the normal resting heart rate for a healthy adult?",
+        "options": ["60-100 bpm", "40-60 bpm", "100-140 bpm", "30-50 bpm"],
+        "answer": "60-100 bpm"
+    },
+    "2025-04-27": {
+        "question": "Which vitamin is primarily produced when the human skin is exposed to sunlight?",
+        "options": ["Vitamin A", "Vitamin B12", "Vitamin D", "Vitamin K"],
+        "answer": "Vitamin D"
+    },
+    "2025-04-28": {
+        "question": "Which of the following blood pressure readings is considered normal?",
+        "options": ["150/100 mmHg", "90/60 mmHg", "120/80 mmHg", "140/90 mmHg"],
+        "answer": "120/80 mmHg"
+    },
+    "2025-04-29": {
+        "question": "Which organ is primarily responsible for detoxifying chemicals and metabolizing drugs?",
+        "options": ["Kidney", "Liver", "Stomach", "Pancreas"],
+        "answer": "Liver"
+    },
+    "2025-04-30": {
+        "question": "What blood type is considered the universal donor?",
+        "options": ["O-", "O+", "AB+", "AB-"],
+        "answer": "O-"
+    }
+
+}
 user_streaks = {}  # Ideally later: Supabase/Postgres
 
 @router.get("/daily-question")
