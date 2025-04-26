@@ -55,3 +55,7 @@ Thumbs.db
 # OS-specific
 .idea/            # JetBrains IDEs (like PyCharm/WebStorm)
 .envrc            # direnv config files
+
+# Ignore Python cache files
+*.pyc
+__pycache__/
