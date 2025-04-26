@@ -72,3 +72,4 @@ def submit_daily_answer(user_id: str, answer: str):
     
     return {"correct": False, "streak": user_info["streak"]}
 
+
