@@ -1,7 +1,7 @@
 // DashboardPage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
-import { getUserProfile } from './user'; 
+import { getUserProfile } from '../api/user'; 
 import '../App.css';
 
 function Dashboard() {

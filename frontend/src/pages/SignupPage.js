@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createUser } from './user'; 
+import { createUser } from '../api/user'; 
 
 function SignUpPage({ onSignUp }) {
   const [formData, setFormData] = useState({

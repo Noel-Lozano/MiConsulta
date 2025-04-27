@@ -1,7 +1,7 @@
 // DailyQuestion.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
-import api from './axios'; 
+import api from '../api/axios'; 
 import '../App.css';
 
 function DailyQuestion() {

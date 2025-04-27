@@ -1,67 +1,24 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
-import DashboardPage from "./pages/DashboardPage";
-import ChatPage from "./pages/ChatPage";
-import ChallengesPage from "./pages/ChallengesPage";
-import DailyQuestion from "./pages/DailyQuestion";
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-
-const fakeUser = {
-  username: "TestUser",
-  gender: "Male",
-  weight: 180,
-  points: 2000,
-  badge: "Platinum"
-};
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import DashboardPage from './pages/DashboardPage';
+import DailyQuestion from './pages/DailyQuestion';
+import ChatPage from './pages/ChatPage';
 
 function App() {
   return (
-    <Router>
-      <Navbar />
+    <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage user={fakeUser} />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/chat"
-          element={
-            <ProtectedRoute>
-              <ChatPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/challenges"
-          element={
-            <ProtectedRoute>
-              <ChallengesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/daily-question"
-          element={
-            <ProtectedRoute>
-              <DailyQuestion />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/daily" element={<DailyQuestion />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="*" element={<LoginPage />} /> {/* Redirect unknown routes to login */}
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

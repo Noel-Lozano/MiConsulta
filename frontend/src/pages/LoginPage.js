@@ -1,16 +1,18 @@
+// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from './user'; 
+import { loginUser } from '../api/user'; // Adjust if your path is different
+import '../App.css'; // Optional if you still have some custom CSS
 
 function LoginPage({ onLogin }) {
   const navigate = useNavigate();
-  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -23,61 +25,69 @@ function LoginPage({ onLogin }) {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      setError('Please fill out both email and password.');
+      setError('Please fill out both fields.');
       return;
     }
 
+    setLoading(true);
     try {
       const response = await loginUser(formData.email, formData.password);
       console.log('Login success:', response);
 
-      // 🌟 THIS IS WHERE you save to localStorage:
-      localStorage.setItem('userId', response.id);
-
-      if (onLogin) onLogin(); // Notify parent App if needed
+      // 🌟 Save user ID (later you can save token if needed)
+      localStorage.setItem('userId', response.user_id);
+      
+      if (onLogin) onLogin(); // Optional callback
       navigate('/dashboard'); // Redirect to dashboard
 
     } catch (err) {
       console.error('Login failed:', err);
-      setError('Login failed. Please check your credentials.');
+      setError('Invalid email or password. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>Bienvenido a MiConsulta</h1>
-      <h2>Welcome to MiConsulta</h2>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 className="text-3xl font-bold mb-6 text-green-600 text-center">MiConsulta Login</h1>
+        
+        {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
+          <button
+            type="submit"
+            className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition disabled:opacity-50"
+            disabled={loading}
+          >
+            {loading ? 'Logging in...' : 'Log In'}
+          </button>
+        </form>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          style={{ margin: '10px', padding: '10px', width: '250px' }}
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          style={{ margin: '10px', padding: '10px', width: '250px' }}
-        />
-        <button type="submit" style={{ padding: '10px 20px', margin: '10px', fontSize: '16px' }}>
-          Log In
+        <button 
+          onClick={() => navigate('/signup')}
+          className="mt-4 text-green-600 hover:underline"
+        >
+          Don't have an account? Sign Up
         </button>
-      </form>
-
-      <button 
-        onClick={() => navigate('/signup')} 
-        style={{ padding: '10px 20px', margin: '10px', fontSize: '16px' }}
-      >
-        Sign Up
-      </button>
+      </div>
     </div>
   );
 }
