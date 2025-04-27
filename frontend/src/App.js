@@ -7,6 +7,8 @@ import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
 import ChatPage from "./pages/ChatPage";
 import ChallengesPage from "./pages/ChallengesPage";
+import DailyQuestion from "./pages/DailyQuestion";
+
 
 const fakeUser = {
   username: "TestUser",
@@ -47,6 +49,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ChallengesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/daily-question"
+          element={
+            <ProtectedRoute>
+              <DailyQuestion />
             </ProtectedRoute>
           }
         />
