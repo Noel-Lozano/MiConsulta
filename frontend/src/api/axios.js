@@ -1,14 +1,13 @@
 import axios from 'axios';
 
-const API_URL = "http://backend:8000"; 
-
+// 👇 IMPORTANT: use the container name, not localhost
+const API_URL = process.env.MI_CONSULTA_API_URL || "http://backend:8000";
 
 const api = axios.create({
-    baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json',
-        // You can add default Authorization headers here too if you have JWT tokens later
-    }
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 export default api;
