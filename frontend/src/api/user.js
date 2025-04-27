@@ -58,11 +58,16 @@ export async function updateUser(userId, updateData) {
 }
 
 export async function loginUser(email, password) {
-    try {
-      const response = await api.post('/users/login', { email, password });
-      return response.data;
-    } catch (error) {
-      console.error('Error logging in:', error);
-      throw error;
-    }
-  }
+    const response = await api.post('/auth/login', { email, password });
+    return response.data; // contains access_token and user_id
+}
+
+export async function signupUser(userData) {
+    const response = await api.post('/auth/signup', userData);
+    return response.data; // contains access_token and user_id
+}
+
+export async function claimDailyReward(userId) {
+    const response = await api.post(`/rewards/claim-daily?user_id=${userId}`);
+    return response.data;
+}
