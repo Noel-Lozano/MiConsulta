@@ -1,10 +1,9 @@
 // src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../api/user'; // Adjust if your path is different
-import '../App.css'; // Optional if you still have some custom CSS
+import api from '../api/axios';
 
-function LoginPage({ onLogin }) {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -17,79 +16,79 @@ function LoginPage({ onLogin }) {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.email || !formData.password) {
-      setError('Please fill out both fields.');
-      return;
-    }
+    setError('');
 
     setLoading(true);
     try {
-      const response = await loginUser(formData.email, formData.password);
-      console.log('Login success:', response);
+      const response = await api.post('/auth/login', formData);
+      console.log('Login success:', response.data);
 
-      // 🌟 Save user ID (later you can save token if needed)
-      localStorage.setItem('userId', response.user_id);
-      
-      if (onLogin) onLogin(); // Optional callback
-      navigate('/dashboard'); // Redirect to dashboard
+      localStorage.setItem('userId', response.data.user_id);
 
-    } catch (err) {
-      console.error('Login failed:', err);
-      setError('Invalid email or password. Please try again.');
-    } finally {
-      setLoading(false);
+      // ✅ Redirect to dashboard after login
+      navigate('/dashboard');
+
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Login failed. Please check credentials or server.');
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-6 text-green-600 text-center">MiConsulta Login</h1>
-        
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <div style={{ maxWidth: '400px', margin: 'auto', marginTop: '100px' }}>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email:</label><br />
           <input
-            name="email"
             type="email"
-            placeholder="Email"
+            name="email"
             value={formData.email}
             onChange={handleChange}
-            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+            required
           />
+        </div>
+        <div>
+          <label>Password:</label><br />
           <input
-            name="password"
             type="password"
-            placeholder="Password"
+            name="password"
             value={formData.password}
             onChange={handleChange}
-            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+            required
           />
-          <button
-            type="submit"
-            className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? 'Logging in...' : 'Log In'}
-          </button>
-        </form>
+        </div>
+        <button type="submit" style={{ marginTop: '10px' }}>Log In</button>
+      </form>
 
-        <button 
+      {/* ADD THIS BELOW */}
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <p>Don't have an account?</p>
+        <button
           onClick={() => navigate('/signup')}
-          className="mt-4 text-green-600 hover:underline"
+          style={{
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            marginTop: '10px'
+          }}
         >
-          Don't have an account? Sign Up
+          Sign Up
         </button>
       </div>
+
+      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
     </div>
   );
-}
+};
 
 export default LoginPage;

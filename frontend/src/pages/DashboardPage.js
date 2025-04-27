@@ -1,49 +1,43 @@
-// DashboardPage.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
-import { getUserProfile } from '../api/user'; 
-import '../App.css';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
-function Dashboard() {
-  const navigate = useNavigate(); // 👈 Setup navigate
+const DashboardPage = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
+    const fetchUserProfile = async () => {
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        navigate('/login');
+        return;
+      }
 
-    if (!userId) {
-      navigate('/login'); // 👈 Redirect to login if not logged in
-      return;
-    }
+      try {
+        const response = await api.get(`/users/${userId}/profile`);
+        setUser(response.data);
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+        navigate('/login');
+      }
+    };
 
-    fetchProfile(userId);
+    fetchUserProfile();
   }, [navigate]);
 
-  const fetchProfile = async (userId) => {
-    try {
-      const profile = await getUserProfile(userId);
-      setUser(profile);
-    } catch (error) {
-      console.error('Failed to load user profile:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <div>Loading your profile...</div>;
-  if (!user) return <div>Failed to load profile.</div>;
+  if (!user) return <p>Loading your profile...</p>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>User Dashboard</h1>
-      <h2>Username: {user.username}</h2>
-      <h3>Gender: {user.gender || "Not specified"}</h3>
-      <h3>Weight: {user.weight} lbs</h3>
-      <h3>Points: {user.points}</h3>
-      <h3>Badge: {user.badge}</h3>
+    <div style={{ maxWidth: '600px', margin: 'auto' }}>
+      <h1>Welcome, {user.username}!</h1>
+      <p>Gender: {user.gender}</p>
+      <p>Age: {user.age}</p>
+      <p>Weight: {user.weight} lbs</p>
+      <p>Points: {user.points}</p>
+      <p>Badge: {user.badge}</p>
     </div>
   );
-}
+};
 
-export default Dashboard;
+export default DashboardPage;

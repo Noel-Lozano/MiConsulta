@@ -11,7 +11,7 @@ async def claim_daily_reward(user_id: str):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    now = datetime.utcnow()
+    now = datetime.now(datetime.timezone.utc)
     last_claimed = user.get("last_daily_points_claimed")
 
     if last_claimed:

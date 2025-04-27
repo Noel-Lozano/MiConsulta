@@ -1,13 +1,12 @@
 import axios from 'axios';
 
-// 👇 IMPORTANT: use the container name, not localhost
-const API_URL = process.env.MI_CONSULTA_API_URL || "http://backend:8000";
-
+// Create an Axios instance
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: process.env.REACT_APP_API_URL || "http://backend:8000",
+
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
 export default api;
