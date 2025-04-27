@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { createUser } from './user'; // Import your API function
 
 function SignUpPage({ onSignUp }) {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
+    password: '',   // Add password field!
     gender: '',
     age: '',
     weight: ''
@@ -18,18 +20,25 @@ function SignUpPage({ onSignUp }) {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation: Username, Email, and Weight are REQUIRED
-    if (!formData.username || !formData.email || !formData.weight) {
-      setError('Please fill out all required fields (Username, Email, Weight).');
+    if (!formData.username || !formData.email || !formData.password || !formData.weight) {
+      setError('Please fill out all required fields (Username, Email, Password, Weight).');
       return;
     }
 
-    // No errors, proceed
-    setError('');
-    onSignUp(formData); // Pass data back to App
+    try {
+      const response = await createUser(formData); // 📩 API call to backend
+      console.log('User created:', response);
+
+      localStorage.setItem('userId', response.id); 
+      
+      if (onSignUp) onSignUp(response);  // Optional: notify parent App
+    } catch (error) {
+      console.error('Signup failed:', error);
+      setError('Signup failed. Please try again.');
+    }
   };
 
   return (
@@ -50,6 +59,14 @@ function SignUpPage({ onSignUp }) {
           name="email"
           placeholder="Email *"
           value={formData.email}
+          onChange={handleChange}
+          style={{ margin: '10px', padding: '10px', width: '250px' }}
+        />
+        <input
+          name="password"
+          placeholder="Password *"
+          type="password"
+          value={formData.password}
           onChange={handleChange}
           style={{ margin: '10px', padding: '10px', width: '250px' }}
         />

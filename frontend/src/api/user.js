@@ -56,3 +56,13 @@ export async function updateUser(userId, updateData) {
         throw error;
     }
 }
+
+export async function loginUser(email, password) {
+    try {
+      const response = await api.post('/users/login', { email, password });
+      return response.data;
+    } catch (error) {
+      console.error('Error logging in:', error);
+      throw error;
+    }
+  }
