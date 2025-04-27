@@ -1,4 +1,4 @@
-# auth.py
+
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from app.database import db
