@@ -2,8 +2,9 @@ from fastapi import APIRouter, HTTPException
 from bson import ObjectId
 from app.database import db
 from app.schemas import UserCreate, UserOut, UserUpdate
-from app.utils import hash_password, award_points, determine_badge
+from app.utils import hash_password, award_points, determine_badge, verify_password
 from datetime import datetime, timedelta
+from pydantic import BaseModel
 
 
 router = APIRouter()
@@ -143,4 +144,33 @@ async def get_user_profile(user_id: str):
         "weight": user.get("weight"),
         "points": user.get("total_points", 0),
         "badge": badge
+    }
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+@router.post("/users/login")
+async def login_user(payload: LoginRequest):
+    user = await db.users.find_one({"email": payload.email})
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
+    if not verify_password(payload.password, user["password_hash"]):
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
+    # If login is successful, return user basic info
+    return {
+        "id": str(user["_id"]),  # MongoDB ID
+        "username": user["username"],
+        "email": user["email"],
+        "age": user.get("age"),
+        "gender": user.get("gender"),
+        "weight": user.get("weight"),
+        "points": user.get("total_points", 0),
+        "badge": determine_badge(user.get("total_points", 0)),
+        "daily_streak": user.get("daily_streak", 0),
+        "completed_7_day_streaks": user.get("completed_7_day_streaks", 0),
+        "last_claimed_date": user.get("last_claimed_date"),
+        "last_daily_points_claimed": user.get("last_daily_points_claimed")
     }
