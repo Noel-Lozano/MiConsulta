@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from './user'; 
+import api from '../api/axios';
 
-function LoginPage({ onLogin }) {
+const LoginPage = () => {
   const navigate = useNavigate();
-  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -15,71 +14,78 @@ function LoginPage({ onLogin }) {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.email || !formData.password) {
-      setError('Please fill out both email and password.');
-      return;
-    }
+    setError('');
 
     try {
-      const response = await loginUser(formData.email, formData.password);
-      console.log('Login success:', response);
+      const response = await api.post('/auth/login', formData);
+      console.log('Login success:', response.data);
 
-      // 🌟 THIS IS WHERE you save to localStorage:
-      localStorage.setItem('userId', response.id);
+      localStorage.setItem('userId', response.data.user_id);
 
-      if (onLogin) onLogin(); // Notify parent App if needed
-      navigate('/dashboard'); // Redirect to dashboard
+      // ✅ Redirect to dashboard after login
+      navigate('/dashboard');
 
-    } catch (err) {
-      console.error('Login failed:', err);
-      setError('Login failed. Please check your credentials.');
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Login failed. Please check credentials or server.');
     }
   };
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>Bienvenido a MiConsulta</h1>
-      <h2>Welcome to MiConsulta</h2>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          style={{ margin: '10px', padding: '10px', width: '250px' }}
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          style={{ margin: '10px', padding: '10px', width: '250px' }}
-        />
-        <button type="submit" style={{ padding: '10px 20px', margin: '10px', fontSize: '16px' }}>
-          Log In
-        </button>
+    <div style={{ maxWidth: '400px', margin: 'auto', marginTop: '100px' }}>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Email:</label><br />
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Password:</label><br />
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" style={{ marginTop: '10px' }}>Log In</button>
       </form>
 
-      <button 
-        onClick={() => navigate('/signup')} 
-        style={{ padding: '10px 20px', margin: '10px', fontSize: '16px' }}
-      >
-        Sign Up
-      </button>
+      {/* ADD THIS BELOW */}
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <p>Don't have an account?</p>
+        <button
+          onClick={() => navigate('/signup')}
+          style={{
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            marginTop: '10px'
+          }}
+        >
+          Sign Up
+        </button>
+      </div>
+
+      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
     </div>
   );
-}
+};
 
 export default LoginPage;
