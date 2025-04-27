@@ -23,4 +23,5 @@ async def ping():
 app.include_router(ask_router)
 app.include_router(user_router)  
 app.include_router(leaderboard_router, prefix="/leaderboard")
-app.include_router(daily.router, prefix="/daily")  # Include the daily router
+app.include_router(daily.router, prefix="/daily")  # Include the daily router    
+
