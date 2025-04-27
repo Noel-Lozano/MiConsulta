@@ -1,5 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from datetime import date, timedelta
+from pydantic import BaseModel
+
+class AnswerSubmission(BaseModel):
+    user_id: str
+    answer: str
 
 router = APIRouter()
 
@@ -35,8 +40,10 @@ questions = {
 }
 user_streaks = {}  # Ideally later: Supabase/Postgres
 
+
 @router.get("/daily-question")
 def get_daily_question():
+    print("Accessing daily question")
     today = str(date.today())
     question_data = questions.get(today)
     if not question_data:
@@ -47,20 +54,26 @@ def get_daily_question():
     }
 
 @router.post("/submit-daily-answer")
-def submit_daily_answer(user_id: str, answer: str):
+def submit_daily_answer(submission: AnswerSubmission):
     today = str(date.today())
     correct_answer = questions.get(today, {}).get("answer")
     
     if not correct_answer:
         return {"correct": False, "message": "No question set for today."}
     
+    # Now use submission.user_id and submission.answer
+    user_id = submission.user_id
+    answer = submission.answer
+
     # Handle streaks
     if user_id not in user_streaks:
         user_streaks[user_id] = {"last_date": None, "streak": 0}
     
     user_info = user_streaks[user_id]
     last_date = user_info["last_date"]
-    
+
+    print(answer, correct_answer)
+
     if answer == correct_answer:
         if last_date == str(date.today() - timedelta(days=1)):
             user_info["streak"] += 1
@@ -71,5 +84,3 @@ def submit_daily_answer(user_id: str, answer: str):
         return {"correct": True, "new_streak": user_info["streak"]}
     
     return {"correct": False, "streak": user_info["streak"]}
-
-

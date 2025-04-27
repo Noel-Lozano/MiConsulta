@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.ask import router as ask_router
 from app.api.user import router as user_router 
 from app.api.leaderboard import router as leaderboard_router
-from app.api.daily import daily as daily_router
+from app.api.daily import router as daily_router
 
 
 app = FastAPI()
