@@ -15,6 +15,7 @@ function Navbar() {
         <Link to="/dashboard" style={{ marginRight: '10px' }}>Dashboard</Link>
         <Link to="/chat" style={{ marginRight: '10px' }}>Chatbot</Link>
         <Link to="/challenges" style={{ marginRight: '10px' }}>Challenges</Link>
+        <Link to="/daily-question" style={{ marginRight: '10px' }}>Daily Question</Link>
       </div>
       <div>
         <button onClick={handleLogout} style={{ padding: '5px 10px' }}>
