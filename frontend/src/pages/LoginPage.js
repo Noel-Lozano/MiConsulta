@@ -23,20 +23,19 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     setLoading(true);
+
     try {
       const response = await api.post('/auth/login', formData);
       console.log('Login success:', response.data);
 
       localStorage.setItem('userId', response.data.user_id);
-
-      // ✅ Redirect to dashboard after login
       navigate('/dashboard');
-
     } catch (error) {
       console.error('Login failed:', error);
       setError('Login failed. Please check credentials or server.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,10 +63,11 @@ const LoginPage = () => {
             required
           />
         </div>
-        <button type="submit" style={{ marginTop: '10px' }}>Log In</button>
+        <button type="submit" style={{ marginTop: '10px' }} disabled={loading}>
+          {loading ? 'Logging in...' : 'Log In'}
+        </button>
       </form>
 
-      {/* ADD THIS BELOW */}
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
         <p>Don't have an account?</p>
         <button
@@ -81,6 +81,7 @@ const LoginPage = () => {
             cursor: 'pointer',
             marginTop: '10px'
           }}
+          disabled={loading}
         >
           Sign Up
         </button>

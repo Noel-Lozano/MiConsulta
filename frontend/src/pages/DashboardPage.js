@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import Navbar from '../components/Navbar'; 
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -29,14 +30,17 @@ const DashboardPage = () => {
   if (!user) return <p>Loading your profile...</p>;
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto' }}>
-      <h1>Welcome, {user.username}!</h1>
-      <p>Gender: {user.gender}</p>
-      <p>Age: {user.age}</p>
-      <p>Weight: {user.weight} lbs</p>
-      <p>Points: {user.points}</p>
-      <p>Badge: {user.badge}</p>
-    </div>
+    <>
+      <Navbar />
+      <div style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
+        <h1>Welcome, {user.username}!</h1>
+        <p><strong>Gender:</strong> {user.gender}</p>
+        <p><strong>Age:</strong> {user.age}</p>
+        <p><strong>Weight:</strong> {user.weight} lbs</p>
+        <p><strong>Points:</strong> {user.points}</p>
+        <p><strong>Badge:</strong> {user.badge}</p>
+      </div>
+    </>
   );
 };
 

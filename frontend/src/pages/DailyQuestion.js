@@ -1,6 +1,6 @@
 // DailyQuestion.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // 👈 Import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import api from '../api/axios'; 
 import '../App.css';
 
@@ -14,7 +14,7 @@ function DailyQuestion() {
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     if (!userId) {
-      navigate('/login'); // 👈 Redirect to login if not logged in
+      navigate('/login');
       return;
     }
 

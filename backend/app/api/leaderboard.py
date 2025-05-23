@@ -1,13 +1,13 @@
 
 from fastapi import APIRouter, HTTPException
 from app.database import db
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 router = APIRouter()
 
 @router.get("/leaderboard/daily")
 async def leaderboard_daily():
-    now = datetime.now(datetime.timezone.utc)
+    now = datetime.now(timezone.utc)
     start_of_day = datetime(now.year, now.month, now.day)
 
     users = []
@@ -27,7 +27,7 @@ async def leaderboard_daily():
 
 @router.get("/leaderboard/weekly")
 async def leaderboard_weekly():
-    now = datetime.now(datetime.timezone.utc)
+    now = datetime.now(timezone.utc)
     start_of_week = now - timedelta(days=now.weekday())
 
     users = []
