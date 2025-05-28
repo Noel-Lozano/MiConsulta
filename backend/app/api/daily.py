@@ -1,86 +1,106 @@
+import os
+import json
+from datetime import date
 from fastapi import APIRouter
-from datetime import date, timedelta
 from pydantic import BaseModel
+from dotenv import load_dotenv
+from fastapi import HTTPException
+from datetime import datetime, timezone, timedelta
+import google.generativeai as genai
+
+load_dotenv()
+
+router = APIRouter()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+# Cache to store user questions for each day
+user_daily_questions = {}
+
+class UserRequest(BaseModel):
+    user_id: str
+
+@router.get("/daily-question/genai")
+async def get_genai_daily_question(user_id: str):
+    today = str(date.today())
+
+    # Return cached question if already generated
+    if user_id in user_daily_questions and today in user_daily_questions[user_id]:
+        return user_daily_questions[user_id][today]
+
+    try:
+        model = genai.GenerativeModel('gemini-2.0-flash-001')
+
+        prompt = (
+            "Generate a JSON-formatted multiple choice question for a teen about health, nutrition, or first aid. "
+            "Return only this format:\n"
+            "{\n"
+            "  \"question\": \"...\",\n"
+            "  \"options\": [\"A\", \"B\", \"C\", \"D\"],\n"
+            "  \"answer\": \"...correct option...\"\n"
+            "}"
+        )
+
+        response = model.generate_content(prompt)
+        ai_text = response.candidates[0].content.parts[0].text
+
+        # JSON parsing try/except block
+        try:
+            start = ai_text.find("{")
+            end = ai_text.rfind("}") + 1
+            json_str = ai_text[start:end]
+            question_json = json.loads(json_str)
+        except Exception as parse_err:
+            return {
+                "error": "❌ Could not parse JSON from Gemini output.",
+                "raw": ai_text,
+                "details": str(parse_err)
+            }
+
+        # Save the generated question for the user
+        if user_id not in user_daily_questions:
+            user_daily_questions[user_id] = {}
+        user_daily_questions[user_id][today] = question_json
+
+        return question_json
+
+    except Exception as e:
+        return {"error": f"❌ Gemini error: {str(e)}"}
+    
+user_streaks = {}
 
 class AnswerSubmission(BaseModel):
     user_id: str
     answer: str
 
-router = APIRouter()
-
-#questions ={date: [question, answer, options]} 
-# sample questions for the month of April 2025
-questions = {
-    "2025-04-26": {
-        "question": "What is the normal resting heart rate for a healthy adult?",
-        "options": ["60-100 bpm", "40-60 bpm", "100-140 bpm", "30-50 bpm"],
-        "answer": "60-100 bpm"
-    },
-    "2025-04-27": {
-        "question": "Which vitamin is primarily produced when the human skin is exposed to sunlight?",
-        "options": ["Vitamin A", "Vitamin B12", "Vitamin D", "Vitamin K"],
-        "answer": "Vitamin D"
-    },
-    "2025-04-28": {
-        "question": "Which of the following blood pressure readings is considered normal?",
-        "options": ["150/100 mmHg", "90/60 mmHg", "120/80 mmHg", "140/90 mmHg"],
-        "answer": "120/80 mmHg"
-    },
-    "2025-04-29": {
-        "question": "Which organ is primarily responsible for detoxifying chemicals and metabolizing drugs?",
-        "options": ["Kidney", "Liver", "Stomach", "Pancreas"],
-        "answer": "Liver"
-    },
-    "2025-04-30": {
-        "question": "What blood type is considered the universal donor?",
-        "options": ["O-", "O+", "AB+", "AB-"],
-        "answer": "O-"
-    }
-
-}
-user_streaks = {}  # Ideally later: Supabase/Postgres
-
-
-@router.get("/daily-question")
-def get_daily_question():
-    print("Accessing daily question")
+@router.post("/daily/submit-daily-answer")
+async def submit_daily_answer(submission: AnswerSubmission):
     today = str(date.today())
-    question_data = questions.get(today)
-    if not question_data:
-        return {"message": "No question for today yet."}
-    return {
-        "question": question_data["question"],
-        "options": question_data["options"]
-    }
-
-@router.post("/submit-daily-answer")
-def submit_daily_answer(submission: AnswerSubmission):
-    today = str(date.today())
-    correct_answer = questions.get(today, {}).get("answer")
-    
-    if not correct_answer:
-        return {"correct": False, "message": "No question set for today."}
-    
-    # Now use submission.user_id and submission.answer
     user_id = submission.user_id
     answer = submission.answer
 
-    # Handle streaks
+    # Ensure the user received a question today
+    if user_id not in user_daily_questions or today not in user_daily_questions[user_id]:
+        raise HTTPException(status_code=400, detail="No question assigned today.")
+
+    # Retrieve correct answer
+    correct_answer = user_daily_questions[user_id][today].get("answer")
+    if correct_answer is None:
+        raise HTTPException(status_code=500, detail="Answer key missing for today's question.")
+
+    # Initialize user streak record if needed
     if user_id not in user_streaks:
         user_streaks[user_id] = {"last_date": None, "streak": 0}
-    
+
     user_info = user_streaks[user_id]
     last_date = user_info["last_date"]
 
-    print(answer, correct_answer)
-
-    if answer == correct_answer:
+    # Check correctness and update streak
+    if answer.strip().lower() == correct_answer.strip().lower():
         if last_date == str(date.today() - timedelta(days=1)):
             user_info["streak"] += 1
         else:
             user_info["streak"] = 1
-        
         user_info["last_date"] = today
         return {"correct": True, "new_streak": user_info["streak"]}
-    
+
     return {"correct": False, "streak": user_info["streak"]}

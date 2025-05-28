@@ -1,4 +1,3 @@
-// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
@@ -29,7 +28,11 @@ const LoginPage = () => {
       const response = await api.post('/auth/login', formData);
       console.log('Login success:', response.data);
 
+      // ✅ Store required auth data
+      localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('userId', response.data.user_id);
+      localStorage.setItem('isLoggedIn', 'true'); // optional but used in your ProtectedRoute
+
       navigate('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);

@@ -1,11 +1,10 @@
-// DailyQuestion.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import api from '../api/axios'; 
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 import '../App.css';
 
 function DailyQuestion() {
-  const navigate = useNavigate(); // 👈 Setup navigate
+  const navigate = useNavigate();
   const [questionData, setQuestionData] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [feedback, setFeedback] = useState('');
@@ -17,18 +16,25 @@ function DailyQuestion() {
       navigate('/login');
       return;
     }
-
-    fetchQuestion();
+    fetchQuestion(userId);
   }, [navigate]);
 
-  const fetchQuestion = async () => {
+  const fetchQuestion = async (userId) => {
     setLoading(true);
     try {
-      const res = await api.get('/daily/daily-question');
-      setQuestionData(res.data);
+      const res = await api.get(`/daily-question/genai?user_id=${userId}`);
+      const data = res.data;
+
+      if (data.question && data.options) {
+        setQuestionData(data);
+      } else {
+        setQuestionData(null);
+        setFeedback("Failed to load a valid question.");
+      }
     } catch (error) {
-      console.error('Error fetching daily question:', error);
+      console.error("Error fetching daily question:", error);
       setQuestionData(null);
+      setFeedback("Server error. Please try again later.");
     }
     setLoading(false);
   };
@@ -41,54 +47,41 @@ function DailyQuestion() {
       return;
     }
 
-    const userId = localStorage.getItem('userId');
-
-    setLoading(true);
-    try {
-      const res = await api.post('/daily/submit-daily-answer', {
-        user_id: userId,
-        answer: selectedAnswer,
-      });
-      const data = res.data;
-
-      if (data.correct) {
-        setFeedback(`✅ Correct! Streak: ${data.new_streak}`);
-      } else {
-        setFeedback('❌ Wrong answer. Try again tomorrow!');
-      }
-    } catch (error) {
-      console.error('Error submitting answer:', error);
-      setFeedback('Failed to submit your answer. Please try again later.');
-    }
-    setLoading(false);
+    // You can customize this to check correctness client-side if needed
+    setFeedback(`Answer submitted: ${selectedAnswer}`);
   };
 
   if (loading) return <div>Loading today's question...</div>;
-  if (!questionData) return <div>Could not load the daily question. Please refresh.</div>;
 
   return (
-    <div className="App">
+    <div className="App" style={{ padding: '20px' }}>
       <h1>🩺 Daily Medical Challenge</h1>
-      <form onSubmit={handleSubmit}>
-        <p>{questionData.question}</p>
-        {questionData.options.map(option => (
-          <div key={option}>
-            <input
-              type="radio"
-              value={option}
-              name="answer"
-              checked={selectedAnswer === option}
-              onChange={(e) => setSelectedAnswer(e.target.value)}
-            />
-            {option}
-          </div>
-        ))}
-        <button type="submit">Submit Answer</button>
-      </form>
+      {questionData ? (
+        <form onSubmit={handleSubmit}>
+          <p>{questionData.question}</p>
+          {questionData.options.map((option) => (
+            <div key={option}>
+              <label>
+                <input
+                  type="radio"
+                  value={option}
+                  name="answer"
+                  checked={selectedAnswer === option}
+                  onChange={(e) => setSelectedAnswer(e.target.value)}
+                />
+                {option}
+              </label>
+            </div>
+          ))}
+          <button type="submit" style={{ marginTop: '10px' }}>Submit Answer</button>
+        </form>
+      ) : (
+        <p>{feedback}</p>
+      )}
 
       {feedback && (
-        <div>
-          <h2>Result:</h2>
+        <div style={{ marginTop: '20px' }}>
+          <h3>Result:</h3>
           <p>{feedback}</p>
         </div>
       )}

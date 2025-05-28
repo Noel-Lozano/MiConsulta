@@ -5,8 +5,10 @@ function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn'); // Clear login info
-    navigate('/'); // Redirect to login
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    navigate('/login'); // Make sure this matches your App.js login route
   };
 
   return (
@@ -14,8 +16,9 @@ function Navbar() {
       <div>
         <Link to="/dashboard" style={{ marginRight: '10px' }}>Dashboard</Link>
         <Link to="/chat" style={{ marginRight: '10px' }}>Chatbot</Link>
+        <Link to="/daily" style={{ marginRight: '10px' }}>Daily Question</Link>
         <Link to="/challenges" style={{ marginRight: '10px' }}>Challenges</Link>
-        <Link to="/daily-question" style={{ marginRight: '10px' }}>Daily Question</Link>
+        
       </div>
       <div>
         <button onClick={handleLogout} style={{ padding: '5px 10px' }}>
